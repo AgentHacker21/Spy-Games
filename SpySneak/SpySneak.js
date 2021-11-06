@@ -1,4 +1,6 @@
 
+///// HANDTRACK VARIABLES ////////
+
 // code from https://codepen.io/victordibia/pen/RdWbEY
 
 // get the video and canvas and set the context for the canvas
@@ -13,6 +15,45 @@ let updateNote = document.getElementById("updatenote");
 // some other variables in the script
 let isVideo = false;
 let model = null;
+
+let filteredPreds = []; // init predictions to use elsewhere in the code
+
+var contextLineWidth = "3"
+var contextStrokeStyle = "black"
+
+///// GAME VARIABLES ///////
+
+const gameCanvas = document.getElementById("gameCanvas");
+const cxt = gameCanvas.getContext("2d");
+
+var framesPerSecond = 24;
+var frame = 1;
+
+// midpoint on the pred as marked by the dot relative to the canvas
+var handPos = {
+    x: 0,
+    y: 0
+};
+
+var newHand = false; // if a new hand detection is observed
+
+var spyPos = {
+    x: 0,
+    y: 0
+}
+
+/*
+LEVELS
+1: Tutorial level
+2: Level with stationary obstacles
+3: Level with moving obstacles (left right up down movement)
+4: Level with moving obstacles (follow? Rotate?)
+*/
+var level = 1; 
+
+
+//////////////////// HANDTRACK CODES /////////////////////////
+
 
 /* 
 object with the handtrack plugin configurations.
@@ -62,12 +103,16 @@ function toggleVideo() {
 
 // Function to return the predictions as used above
 function runDetection() {
-    model.detect(video).then(predictions => {
-        console.log("Predictions: ", predictions);
-
+    model.detect(video).then(predictions => {        
         //removing face and pinch labels
-        predictions = predictions.filter(innerArray => innerArray.label !== 'face' && innerArray.label !== 'pinch' ); 
-        model.renderPredictions(predictions, canvas, context, video);
+
+        filteredPreds = predictions.filter(innerArray => innerArray.label !== 'face' && innerArray.label !== 'pinch' ); 
+
+        model.renderPredictions(filteredPreds, canvas, context, video);
+
+        context.lineWidth = contextLineWidth
+        context.strokeStyle = contextStrokeStyle
+        context.strokeRect(60, 90, 450, 290);
 
         if (isVideo) {
             // not sure how this call works
@@ -83,3 +128,58 @@ handTrack.load(modelParams).then(lmodel => {
     updateNote.innerText = "Loaded Model!"
     trackButton.disabled = false
 });
+
+
+//////////////////// GAME LOGIC CODES /////////////////////////
+
+// starting function
+window.onload = function() {
+    // note canvas context set above
+
+	setInterval(function() {
+            checkHand();
+			// moveEverything();
+			// drawEverything();	
+
+            // increment frame
+            if (frame === 24) {
+                frame = 1;
+            } else {
+                frame++;
+            }
+		}, 1000/framesPerSecond);
+
+};
+
+// To render a image
+function drawCustomImage(canvasCxt, imgSrc, x, y, width, height) {
+    var customImage = new Image();
+    customImage.src = imgSrc;
+    canvasCxt.drawImage(customImage, x, y, width, height)
+}
+
+function moveEverything() {
+    // update pos of spy
+
+    // if hand pos is in detection range
+    // (80, 90)(530, 350)
+}
+
+function checkHand() {
+    // if theres just one hand
+    if (filteredPreds.length === 1) {
+
+        // calculate the center
+        // bbox is x, y width, height
+        
+        handPos.x = filteredPreds[0].bbox[0] + filteredPreds[0].bbox[2] / 2
+        handPos.y = filteredPreds[0].bbox[1] + filteredPreds[0].bbox[3] / 2
+
+        console.log(handPos.x, handPos.y )
+
+
+        // update that newHand detected is true
+        newHand = true;
+    }
+
+}
