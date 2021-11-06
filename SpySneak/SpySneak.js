@@ -1,7 +1,4 @@
-
 ///// HANDTRACK VARIABLES ////////
-
-// code from https://codepen.io/victordibia/pen/RdWbEY
 
 // get the video and canvas and set the context for the canvas
 const video = document.getElementById("myvideo");
@@ -35,25 +32,44 @@ var handPos = {
     y: 0
 };
 
+// scaled values for the hand
+var handXScaled = 0;
+var handYScaled = 0;
+
 var newHand = false; // if a new hand detection is observed
 
+// post of character on canvas
 var spyPos = {
     x: 0,
     y: 0
 }
 
 /*
+Obstacle and goal variables
+x, y, width, height
+*/
+var obstaclePos = {};
+
+// only one goal zone
+var goalPos = {};
+
+// with multiple lasers of just x y
+var laserPos = {}
+
+
+/*
 LEVELS
 1: Tutorial level
 2: Level with stationary obstacles
 3: Level with moving obstacles (left right up down movement)
-4: Level with moving obstacles (follow? Rotate?)
+4: Level with moving obstacles advanced (follow? Rotate?)
 */
 var level = 1; 
 
 
 //////////////////// HANDTRACK CODES /////////////////////////
 
+// code from https://codepen.io/victordibia/pen/RdWbEY
 
 /* 
 object with the handtrack plugin configurations.
@@ -110,9 +126,10 @@ function runDetection() {
 
         model.renderPredictions(filteredPreds, canvas, context, video);
 
+        // add movement area onto the camera feed
         context.lineWidth = contextLineWidth
         context.strokeStyle = contextStrokeStyle
-        context.strokeRect(60, 90, 450, 290);
+        context.strokeRect(60, 90, 480, 290);
 
         if (isVideo) {
             // not sure how this call works
@@ -158,13 +175,68 @@ function drawCustomImage(canvasCxt, imgSrc, x, y, width, height) {
     canvasCxt.drawImage(customImage, x, y, width, height)
 }
 
+// for updating the position of images on the canvas
 function moveEverything() {
-    // update pos of spy
+    // update any moving obstacles for that level
+    updateObstacles()
 
-    // if hand pos is in detection range
-    // (80, 90)(530, 350)
+
+    // if there is new handpos to update spy pos
+    if (newHand) {
+        newhand = false;
+
+        // if hand is within box
+        if (spyPos.x > 60 && spyPos.x < 540 &&
+            spyPos.y > 90 && spyPos.y < 380) {
+
+                handXScaled = Math.round(handPos.x / 3 * 4)
+
+                handYScaled = Math.round(handPos.y / 3 * 4)
+
+                // calculate euclidian dist
+                distFromHand = Math.sqrt( Math.pow((spyPos.x-handXScaled), 2) + Math.pow((spyPos.y-handYScaled), 2) );
+                // if within range of previous position (euclidian dist)
+                if (distFromHand < 10) {
+                    
+                    // if goal advance level
+
+                    // if hit obstacle for that level (obstacles are just lasers)
+                    
+                    
+                    // if encounterwall 
+                        // consider previous pos
+                        // consider new pos
+                        // flush with wall
+
+                    // else
+                }
+            }
+    }
+
 }
 
+function hitObstacle() {
+
+}
+
+// function to update obsta{cles
+function updateObstacles() {
+    // check based on level
+
+    // move based on previous position
+
+}
+
+// to render everything on the canvas for the new frame
+function drawEverything() {
+    // check level
+
+    // render obstacles by level
+
+    // render character
+}
+
+// check if there is a new hand position and update
 function checkHand() {
     // if theres just one hand
     if (filteredPreds.length === 1) {
@@ -183,3 +255,18 @@ function checkHand() {
     }
 
 }
+
+                               
+
+// function to check for intersection (https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function)
+function intersects(a,b,c,d,p,q,r,s) {
+    var det, gamma, lambda;
+    det = (c - a) * (s - q) - (r - p) * (d - b);
+    if (det === 0) {
+        return false;
+    } else {
+        lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+        gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+        return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
+    }
+};
