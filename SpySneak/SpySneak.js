@@ -1,0 +1,85 @@
+
+// code from https://codepen.io/victordibia/pen/RdWbEY
+
+// get the video and canvas and set the context for the canvas
+const video = document.getElementById("myvideo");
+const canvas = document.getElementById("canvas");
+const context = canvas.getContext("2d");
+
+// find the button and the update note to display other information
+let trackButton = document.getElementById("trackbutton");
+let updateNote = document.getElementById("updatenote");
+
+// some other variables in the script
+let isVideo = false;
+let model = null;
+
+/* 
+object with the handtrack plugin configurations.
+model params to be loaded into the tracking model to make it work properly
+Apparently 0.5 makes for the fastest framerate on his demo site
+Can reduce the number of boxes as we do not need more than 3 tbh (unless we make a two player segment)
+*/
+const modelParams = {
+    flipHorizontal: true,   // flip e.g for video  
+    maxNumBoxes: 20,        // maximum number of boxes to detect
+    iouThreshold: 0.5,      // ioU threshold for non-max suppression
+    scoreThreshold: 0.6,    // confidence threshold for predictions.
+}
+
+// Function based off the handtrack helper methods in their library
+function startVideo() {
+
+    handTrack.startVideo(video).then(function (status) {
+        console.log("video started", status);
+        if (status) {
+            // optional update of text on screen to indicate the tracking has started successfully
+            updateNote.innerText = "Video started. Now tracking"
+            isVideo = true
+            // runDetection defined in this script below
+            runDetection()
+        } else {
+            // optional update of text on screen to indicate video is not enabled
+            updateNote.innerText = "Please enable video"
+        }
+    });
+}
+
+// Function to toggle the starting and stopping of the video using library helper methods
+function toggleVideo() {
+
+    if (!isVideo) {
+        updateNote.innerText = "Starting video"
+        startVideo();
+
+    } else {
+        updateNote.innerText = "Stopping video"
+        handTrack.stopVideo(video)
+        isVideo = false;
+        updateNote.innerText = "Video stopped"
+    }
+}
+
+// Function to return the predictions as used above
+function runDetection() {
+    model.detect(video).then(predictions => {
+        console.log("Predictions: ", predictions);
+
+        //removing face and pinch labels
+        predictions = predictions.filter(innerArray => innerArray.label !== 'face' && innerArray.label !== 'pinch' ); 
+        model.renderPredictions(predictions, canvas, context, video);
+
+        if (isVideo) {
+            // not sure how this call works
+            requestAnimationFrame(runDetection);
+        }
+    });
+}
+
+// Load the model (note this function runs outside the functions (i think it only runs once?))
+handTrack.load(modelParams).then(lmodel => {
+    // detect objects in the image
+    model = lmodel
+    updateNote.innerText = "Loaded Model!"
+    trackButton.disabled = false
+});
