@@ -44,7 +44,7 @@ var spyPos = {
     y: 0
 }
 
-var spySize = 40
+var spySize = 50
 /*
 Obstacle and goal variables
 x, y, width, height
@@ -53,6 +53,8 @@ var obstaclePos = {};
 
 // only one goal zone
 var goalPos = {};
+
+var goalSize = 50
 
 // with multiple lasers of just x y
 var laserPos = {}
@@ -163,6 +165,7 @@ handTrack.load(modelParams).then(lmodel => {
 // starting function
 window.onload = function() {
     // note canvas context set above
+    updateLevel();
 
 	setInterval(function() {
             checkHand();
@@ -212,23 +215,16 @@ function moveEverything() {
                     
                     // if goal advance level
                     if (checkGoal()) {
+                        level += 1;
                         updateLevel()
                     }
 
                     // if hit laser for that level (laser are just lasers)
                     else if (hitLaser()) {
 
-                    }
-                    
-                    else if (hitObstacle() ){
-                    // if encounter obstacle 
-                        // consider previous pos
-                        // consider new pos
-                        // flush with wall
-                    } 
+                    } else if (hitObstacle()) {
 
-                    else {
-                        // just update to new pos
+                    } else {
                         spyPos.x = handXScaled
                         spyPos.y = handYScaled
                     }
@@ -246,21 +242,56 @@ function checkGoal() {
     return false
 }
 
+
+// check if one of the lasers
+function hitLaser() {
+    var hit = false;
+
+    // iterate through lasers
+    for (laser in laserPos) {
+        // laser with left right top bottom of spy
+        hit = hit || 
+            intersects(laserPos[laser].x1, laserPos[laser].y1, laserPos[laser].x2, laserPos[laser].y2, spyPos.x, spyPos.y, spyPos.x, spyPos.y + spySize) ||
+            intersects(laserPos[laser].x1, laserPos[laser].y1, laserPos[laser].x2, laserPos[laser].y2, spyPos.x + spySize, spyPos.y, spyPos.x + spySize, spyPos.y + spySize) ||
+            intersects(laserPos[laser].x1, laserPos[laser].y1, laserPos[laser].x2, laserPos[laser].y2, spyPos.x, spyPos.y, spyPos.x + spySize, spyPos.y) ||
+            intersects(laserPos[laser].x1, laserPos[laser].y1, laserPos[laser].x2, laserPos[laser].y2, spyPos.x, spyPos.y + spySize, spyPos.x + spySize, spyPos.y + spySize) 
+
+    }
+    
+    //temp
+    return hit
+
+}
+
+// check if an obstacle overlaps
+function hitObstacle() {
+    // iterate through obstacles and check for collision
+
+    // if (){
+    //     // if encounter obstacle 
+    //         // consider previous pos
+    //         // consider new pos
+    //         // flush with wall
+    //     } 
+    // just update to new pos
+
+    //temp
+    return false
+
+}
 // update the level, starting positions states and obstacle info
 function updateLevel() {
     // update level
-    level += 1;
 
     switch(level) {
         case 1:
             // gamestate
             // gameState = "play"
 
-            // goal pos
             // post of character on canvas
             spyPos = {
-                x: 20,
-                y: 20
+                x: 25,
+                y: 500
             }
 
             /*
@@ -275,27 +306,103 @@ function updateLevel() {
                     height: 500
                 },
                 1: {
-                    x: 600,
+                    x: 500,
                     y: 140,
                     width: 40,
                     height:460 
                 },
                 2: {
-                    x: 600,
+                    x: 500,
                     y: 100,
-                    width: 100,
+                    width: 200,
                     height: 40
                 }
             };
 
             // only one goal zone
-            goalPos = {};
+            goalPos = {
+                x: 750,
+                y: 550,
+                width: 50,
+                height: 50
+            };
 
             // with multiple lasers of just x y
-            laserPos = {}
+            laserPos = {
+                0: {
+                    x1: 300,
+                    y1: 0,
+                    x2: 300,
+                    y2: 400
+                },
+                1: {
+                    x1: 650,
+                    y1: 300,
+                    x2: 800,
+                    y2: 300
+                }
+            }
 
             break;
         case 2:
+            // gamestate
+            // gameState = "play"
+
+            // post of character on canvas
+            spyPos = {
+                x: 25,
+                y: 500
+            }
+
+            /*
+            Obstacle and goal variables
+            x, y, width, height
+            */
+            obstaclePos = {
+                0: {
+                    x: 100,
+                    y: 100,
+                    width: 40,
+                    height: 500
+                },
+                1: {
+                    x: 500,
+                    y: 140,
+                    width: 40,
+                    height:460 
+                },
+                2: {
+                    x: 500,
+                    y: 100,
+                    width: 200,
+                    height: 40
+                }
+            };
+
+            // only one goal zone
+            goalPos = {
+                x: 750,
+                y: 550,
+                width: 50,
+                height: 50
+            };
+
+            // with multiple lasers of just x y
+            laserPos = {
+                0: {
+                    x1: 300,
+                    y1: 0,
+                    x2: 300,
+                    y2: 400
+                },
+                1: {
+                    x1: 650,
+                    y1: 300,
+                    x2: 800,
+                    y2: 300
+                }
+            }
+
             break;
         case 3:
             break;
@@ -306,56 +413,66 @@ function updateLevel() {
     }
 }
 
-
-// check if one of the lasers
-function hitLaser() {
-    // iterate through lasers
-
-    //temp
-    return false
-
-}
-
-// check if an obstacle overlaps
-function hitObstacle() {
-    // iterate through obstacles and check for collision
-
-    //temp
-    return false
-
-}
-
 // function to update obstacles for the animation 
 function updateObstaclesAndLasers() {
     // move based on previous position
 
     // check based on level
     switch(level) {
-        case 1:
-            break;
-        case 2:
-            break;
         case 3:
             break;
         case 4:
             break;
         default:
-            // nothing
+            // nothing for stationary levels 1 & 2
     }
 }
 
 // to render everything on the canvas for the new frame
 function drawEverything() {
-    // iterate through obstacles
+    // draw bg
+    drawCustomImage(cxt, "./images/background.png", 0, 0, 800, 600)
 
     // iterate through lasers
+    for( var laser in laserPos){
+        drawLaser(laserPos[laser].x1, laserPos[laser].y1, laserPos[laser].x2, laserPos[laser].y2)
+        console.log(laser)
+    }
+
+    // iterate through obstacles
+    for (var obstacle in obstaclePos) {
+        drawObstacle(obstaclePos[obstacle].x, obstaclePos[obstacle].y, obstaclePos[obstacle].width, obstaclePos[obstacle].height)
+    }
 
     // render goal
+    drawCustomImage(cxt, "./images/microchip.png", goalPos.x, goalPos.y, goalSize, goalSize)
+
 
     // render character
     drawCustomImage(cxt, "./images/robot.png", spyPos.x, spyPos.y, spySize, spySize)
 
 }
+
+function drawLaser(x1, y1, x2, y2) {
+    var gradient = cxt.createLinearGradient(0, 0, 600, 800);
+    gradient.addColorStop("0", "magenta");
+    gradient.addColorStop("0.5" ,"red");
+    gradient.addColorStop("1.0", "pink");
+
+    cxt.strokeStyle = gradient
+    cxt.lineWidth = 4;
+    cxt.beginPath();
+    cxt.moveTo(x1, y1);
+    cxt.lineTo(x2, y2);
+    cxt.stroke();
+}
+
+function drawObstacle(x, y, width, height) {
+    cxt.beginPath();
+    cxt.fillStyle = "black"
+    cxt.fillRect(x, y, width, height);
+}
+
 
 // check if there is a new hand position and update
 function checkHand() {
