@@ -81,7 +81,7 @@ LEVELS
 3: Level with moving obstacles (left right up down movement)
 4: Level with moving obstacles advanced (follow? Rotate?)
 */
-var level = 5; 
+var level = 1; 
 
 // play, win, lose (display diff scene on canvas)
 var gameState = "play"
