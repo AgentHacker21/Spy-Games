@@ -130,9 +130,17 @@ function runDetection() {
         model.renderPredictions(filteredPreds, canvas, context, video);
 
         // add movement area onto the camera feed
+        context.beginPath();
         context.lineWidth = contextLineWidth
         context.strokeStyle = contextStrokeStyle
         context.strokeRect(100, 80, 400, 300);
+
+        context.beginPath();
+        context.fillStyle = "red"
+        context.fillRect(spyPos.x / 2 + 100, spyPos.y / 2 + 80, 10, 10);
+
+        console.log(spyPos)
+
 
         if (isVideo) {
             // not sure how this call works
@@ -194,16 +202,13 @@ function moveEverything() {
 
                 contextStrokeStyle = "blue"
 
-                handXScaled = Math.round((handPos.x - 100) / 3 * 4)
-                handYScaled = Math.round((handPos.y - 80) / 3 * 4)
-
-                console.log(handXScaled)
+                handXScaled = Math.round((handPos.x - 100) * 2)
+                handYScaled = Math.round((handPos.y - 80) * 2)
 
                 // calculate euclidian dist
                 distFromHand = Math.sqrt( Math.pow((spyPos.x-handXScaled), 2) + Math.pow((spyPos.y-handYScaled), 2) );
                 // if within range of previous position (euclidian dist)
-                if (distFromHand < 20) {
-        console.log("in move")
+                if (distFromHand < 40) {
                     
                     // if goal advance level
                     if (checkGoal()) {
@@ -226,7 +231,6 @@ function moveEverything() {
                         // just update to new pos
                         spyPos.x = handXScaled
                         spyPos.y = handYScaled
-                        console.log(spyPos)
                     }
                 }
         } else {
