@@ -235,7 +235,7 @@ function moveEverything() {
 // check if goal is reached
 function checkGoal() {
     // check for overlap
-    return false
+    return boxHitSpy(goalPos.x, goalPos.y, goalSize, goalSize, handXScaled, handYScaled)
 }
 
 
