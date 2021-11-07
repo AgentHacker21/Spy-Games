@@ -66,6 +66,8 @@ LEVELS
 */
 var level = 1; 
 
+// play, win, lose (display diff scene on canvas)
+var gameState = "play"
 
 //////////////////// HANDTRACK CODES /////////////////////////
 
@@ -129,7 +131,7 @@ function runDetection() {
         // add movement area onto the camera feed
         context.lineWidth = contextLineWidth
         context.strokeStyle = contextStrokeStyle
-        context.strokeRect(60, 90, 480, 290);
+        context.strokeRect(100, 80, 400, 300);
 
         if (isVideo) {
             // not sure how this call works
@@ -178,19 +180,19 @@ function drawCustomImage(canvasCxt, imgSrc, x, y, width, height) {
 // for updating the position of images on the canvas
 function moveEverything() {
     // update any moving obstacles for that level
-    updateObstacles()
-
+    updateObstaclesAndLasers()
 
     // if there is new handpos to update spy pos
     if (newHand) {
         newhand = false;
 
         // if hand is within box
-        if (spyPos.x > 60 && spyPos.x < 540 &&
-            spyPos.y > 90 && spyPos.y < 380) {
+        if (handPos.x > 70 && handPos.x < 530 &&
+            handPos.y > 80 && handPos.y < 390) {
+
+                contextStrokeStyle = "green"
 
                 handXScaled = Math.round(handPos.x / 3 * 4)
-
                 handYScaled = Math.round(handPos.y / 3 * 4)
 
                 // calculate euclidian dist
@@ -199,41 +201,106 @@ function moveEverything() {
                 if (distFromHand < 10) {
                     
                     // if goal advance level
+                    if (checkGoal()) {
 
-                    // if hit obstacle for that level (obstacles are just lasers)
+                    }
+
+                    // if hit laser for that level (laser are just lasers)
+                    else if (hitLaser()) {
+
+                    }
                     
-                    
-                    // if encounterwall 
+                    else if (hitObstacle() ){
+                    // if encounter obstacle 
                         // consider previous pos
                         // consider new pos
                         // flush with wall
+                    } 
 
-                    // else
+                    else {
+                        // just update to new pos
+                    }
                 }
-            }
+        } else {
+            contextStrokeStyle = "black"
+        }
     }
 
 }
 
+// check if goal is reached
+function checkGoal() {
+    // check for overlap
+}
+
+
+// check if one of the lasers
+function hitLaser() {
+    // check based on level
+    switch(level) {
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            break;
+        default:
+            // use tutorial level as default
+    }
+
+}
+
+// check if an obstacle overlaps
 function hitObstacle() {
+    // check based on level
+    switch(level) {
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            break;
+        default:
+            // use tutorial level as default
+    }
 
 }
 
 // function to update obsta{cles
-function updateObstacles() {
-    // check based on level
-
+function updateObstaclesAndLasers() {
     // move based on previous position
+
+    // check based on level
+    switch(level) {
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            break;
+        default:
+            // use tutorial level as default
+    }
+
 
 }
 
 // to render everything on the canvas for the new frame
 function drawEverything() {
-    // check level
-
-    // render obstacles by level
+    // check level and render obstacles by level
+    switch(level) {
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            break;
+        default:
+            // use tutorial level as default
+    }
 
     // render character
+
 }
 
 // check if there is a new hand position and update
@@ -249,16 +316,14 @@ function checkHand() {
 
         console.log(handPos.x, handPos.y )
 
-
         // update that newHand detected is true
         newHand = true;
     }
 
-}
+}                       
 
-                               
-
-// function to check for intersection (https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function)
+// function to check for intersection between line segments
+// https://stackoverflow.com/questions/9043805/test-if-two-lines-intersect-javascript-function
 function intersects(a,b,c,d,p,q,r,s) {
     var det, gamma, lambda;
     det = (c - a) * (s - q) - (r - p) * (d - b);
