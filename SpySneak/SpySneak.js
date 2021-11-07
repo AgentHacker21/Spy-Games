@@ -141,9 +141,6 @@ function runDetection() {
         context.fillStyle = "red"
         context.fillRect(spyPos.x / 2 + 100, spyPos.y / 2 + 80, 10, 10);
 
-        console.log(spyPos)
-
-
         if (isVideo) {
             // not sure how this call works
             requestAnimationFrame(runDetection);
@@ -193,7 +190,6 @@ function drawCustomImage(canvasCxt, imgSrc, x, y, width, height) {
 function moveEverything() {
     // update any moving obstacles for that level
     updateObstaclesAndLasers()
-    console.log(newHand)
 
     // if there is new handpos to update spy pos
     if (newHand) {
@@ -249,13 +245,14 @@ function hitLaser() {
 
     // iterate through lasers
     for (laser in laserPos) {
-        // laser with left right top bottom of spy
-        hit = hit || 
-            intersects(laserPos[laser].x1, laserPos[laser].y1, laserPos[laser].x2, laserPos[laser].y2, spyPos.x, spyPos.y, spyPos.x, spyPos.y + spySize) ||
-            intersects(laserPos[laser].x1, laserPos[laser].y1, laserPos[laser].x2, laserPos[laser].y2, spyPos.x + spySize, spyPos.y, spyPos.x + spySize, spyPos.y + spySize) ||
-            intersects(laserPos[laser].x1, laserPos[laser].y1, laserPos[laser].x2, laserPos[laser].y2, spyPos.x, spyPos.y, spyPos.x + spySize, spyPos.y) ||
-            intersects(laserPos[laser].x1, laserPos[laser].y1, laserPos[laser].x2, laserPos[laser].y2, spyPos.x, spyPos.y + spySize, spyPos.x + spySize, spyPos.y + spySize) 
+        hit = hit || lineHitSpy(laserPos[laser].x1, laserPos[laser].y1, laserPos[laser].x2, laserPos[laser].y2,
+                                spyPos.x, spyPos.y);
+             
 
+        if (hit) {
+            // reset position back to start
+            updateLevel()
+        }
     }
     
     //temp
@@ -263,20 +260,80 @@ function hitLaser() {
 
 }
 
+function lineHitSpy(x1, y1, x2, y2, sx1, sy1) {
+    // laser with left right top bottom of spy
+
+    return intersects(x1, y1, x2, y2, sx1, sy1, sx1, sy1 + spySize) ||
+            intersects(x1, y1, x2, y2, sx1 + spySize, sy1, sx1 + spySize, sy1 + spySize) ||
+            intersects(x1, y1, x2, y2, sx1, sy1, sx1 + spySize, sy1) ||
+            intersects(x1, y1, x2, y2, sx1, sy1 + spySize, sx1 + spySize, sy1 + spySize)
+}
+
+function boxHitSpy (x, y, width, height, sx, sy) {
+    // laser with left right top bottom of spy
+
+    return lineHitSpy(x, y, x, y + height, sx, sy) ||
+            lineHitSpy(x + width, y, x + width, y + height, sx, sy) ||
+            lineHitSpy(x, y, x + width, y, sx, sy) ||
+            lineHitSpy(x, y + height, x + width, y + height, sx, sy) 
+}
+
+function restartLevel() {
+    updateLevel()
+}
+
 // check if an obstacle overlaps
 function hitObstacle() {
     // iterate through obstacles and check for collision
+    var hit = false
 
-    // if (){
-    //     // if encounter obstacle 
-    //         // consider previous pos
-    //         // consider new pos
-    //         // flush with wall
-    //     } 
-    // just update to new pos
+    for(var obstacle in obstaclePos) {
 
-    //temp
-    return false
+        var newHit = true
+
+        while (newHit) {
+            // check if obstacle hit
+            newHit = boxHitSpy(obstaclePos[obstacle].x, obstaclePos[obstacle].y, obstaclePos[obstacle].width, obstaclePos[obstacle].height, handXScaled, handYScaled)
+            var hit = hit || newHit
+
+            var distX = 0
+            var distY = 0
+
+            if(newHit) {
+                var directionMovedX = handXScaled - spyPos.x
+                if (directionMovedX > 0) {
+                    // moved right, now move left
+                    distX = (obstaclePos[obstacle].x - spySize) - handXScaled
+                } else {
+                    // moved left, now move right
+                    distX = (obstaclePos[obstacle].x + obstaclePos[obstacle].width) - handXScaled
+                }
+
+                var directionMovedY = handYScaled - spyPos.y
+                if (directionMovedY > 0) {
+                    // moved down, now move up
+                    distY = (obstaclePos[obstacle].y - spySize) - handYScaled 
+                } else {
+                    // moved up, now move down
+                    distY = (obstaclePos[obstacle].y + obstaclePos[obstacle].height) - handYScaled
+                }
+
+                if (Math.abs(distX) < Math.abs(distY)) {
+                    handXScaled += distX
+                } else {
+                    handYScaled += distY
+                    
+                }
+
+            }
+        }
+    }
+
+    // then update the final position
+    spyPos.x = handXScaled
+    spyPos.y = handYScaled
+
+    return hit
 
 }
 // update the level, starting positions states and obstacle info
@@ -291,7 +348,7 @@ function updateLevel() {
             // post of character on canvas
             spyPos = {
                 x: 25,
-                y: 500
+                y: 50
             }
 
             /*
@@ -321,10 +378,8 @@ function updateLevel() {
 
             // only one goal zone
             goalPos = {
-                x: 750,
-                y: 550,
-                width: 50,
-                height: 50
+                x: 700,
+                y: 500
             };
 
             // with multiple lasers of just x y
@@ -381,10 +436,8 @@ function updateLevel() {
 
             // only one goal zone
             goalPos = {
-                x: 750,
-                y: 550,
-                width: 50,
-                height: 50
+                x: 700,
+                y: 500
             };
 
             // with multiple lasers of just x y
@@ -436,7 +489,6 @@ function drawEverything() {
     // iterate through lasers
     for( var laser in laserPos){
         drawLaser(laserPos[laser].x1, laserPos[laser].y1, laserPos[laser].x2, laserPos[laser].y2)
-        console.log(laser)
     }
 
     // iterate through obstacles
@@ -484,8 +536,6 @@ function checkHand() {
         
         handPos.x = filteredPreds[0].bbox[0] + filteredPreds[0].bbox[2] / 2
         handPos.y = filteredPreds[0].bbox[1] + filteredPreds[0].bbox[3] / 2
-
-        // console.log(handPos.x, handPos.y )
 
         // update that newHand detected is true
         newHand = true;
