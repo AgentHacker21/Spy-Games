@@ -44,6 +44,7 @@ var spyPos = {
     y: 0
 }
 
+var spySize = 40
 /*
 Obstacle and goal variables
 x, y, width, height
@@ -157,8 +158,8 @@ window.onload = function() {
 
 	setInterval(function() {
             checkHand();
-			// moveEverything();
-			// drawEverything();	
+			moveEverything();
+			drawEverything();	
 
             // increment frame
             if (frame === 24) {
@@ -181,28 +182,32 @@ function drawCustomImage(canvasCxt, imgSrc, x, y, width, height) {
 function moveEverything() {
     // update any moving obstacles for that level
     updateObstaclesAndLasers()
+    console.log(newHand)
 
     // if there is new handpos to update spy pos
     if (newHand) {
         newhand = false;
 
         // if hand is within box
-        if (handPos.x > 70 && handPos.x < 530 &&
-            handPos.y > 80 && handPos.y < 390) {
+        if (handPos.x > 100 && handPos.x < 500 &&
+            handPos.y > 80 && handPos.y < 380) {
 
-                contextStrokeStyle = "green"
+                contextStrokeStyle = "blue"
 
-                handXScaled = Math.round(handPos.x / 3 * 4)
-                handYScaled = Math.round(handPos.y / 3 * 4)
+                handXScaled = Math.round((handPos.x - 100) / 3 * 4)
+                handYScaled = Math.round((handPos.y - 80) / 3 * 4)
+
+                console.log(handXScaled)
 
                 // calculate euclidian dist
                 distFromHand = Math.sqrt( Math.pow((spyPos.x-handXScaled), 2) + Math.pow((spyPos.y-handYScaled), 2) );
                 // if within range of previous position (euclidian dist)
-                if (distFromHand < 10) {
+                if (distFromHand < 20) {
+        console.log("in move")
                     
                     // if goal advance level
                     if (checkGoal()) {
-
+                        updateLevel()
                     }
 
                     // if hit laser for that level (laser are just lasers)
@@ -219,6 +224,9 @@ function moveEverything() {
 
                     else {
                         // just update to new pos
+                        spyPos.x = handXScaled
+                        spyPos.y = handYScaled
+                        console.log(spyPos)
                     }
                 }
         } else {
@@ -231,47 +239,96 @@ function moveEverything() {
 // check if goal is reached
 function checkGoal() {
     // check for overlap
+    return false
+}
+
+// update the level, starting positions states and obstacle info
+function updateLevel() {
+    // update level
+    level += 1;
+
+    switch(level) {
+        case 1:
+            // gamestate
+            // gameState = "play"
+
+            // goal pos
+            // post of character on canvas
+            spyPos = {
+                x: 20,
+                y: 20
+            }
+
+            /*
+            Obstacle and goal variables
+            x, y, width, height
+            */
+            obstaclePos = {
+                0: {
+                    x: 100,
+                    y: 100,
+                    width: 40,
+                    height: 500
+                },
+                1: {
+                    x: 600,
+                    y: 140,
+                    width: 40,
+                    height:460 
+                },
+                2: {
+                    x: 600,
+                    y: 100,
+                    width: 100,
+                    height: 40
+                }
+            };
+
+            // only one goal zone
+            goalPos = {};
+
+            // with multiple lasers of just x y
+            laserPos = {}
+
+            break;
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            break;    
+        default:
+            // win?        
+    }
 }
 
 
 // check if one of the lasers
 function hitLaser() {
-    // check based on level
-    switch(level) {
-        case 2:
-            break;
-        case 3:
-            break;
-        case 4:
-            break;
-        default:
-            // use tutorial level as default
-    }
+    // iterate through lasers
+
+    //temp
+    return false
 
 }
 
 // check if an obstacle overlaps
 function hitObstacle() {
-    // check based on level
-    switch(level) {
-        case 2:
-            break;
-        case 3:
-            break;
-        case 4:
-            break;
-        default:
-            // use tutorial level as default
-    }
+    // iterate through obstacles and check for collision
+
+    //temp
+    return false
 
 }
 
-// function to update obsta{cles
+// function to update obstacles for the animation 
 function updateObstaclesAndLasers() {
     // move based on previous position
 
     // check based on level
     switch(level) {
+        case 1:
+            break;
         case 2:
             break;
         case 3:
@@ -279,27 +336,20 @@ function updateObstaclesAndLasers() {
         case 4:
             break;
         default:
-            // use tutorial level as default
+            // nothing
     }
-
-
 }
 
 // to render everything on the canvas for the new frame
 function drawEverything() {
-    // check level and render obstacles by level
-    switch(level) {
-        case 2:
-            break;
-        case 3:
-            break;
-        case 4:
-            break;
-        default:
-            // use tutorial level as default
-    }
+    // iterate through obstacles
+
+    // iterate through lasers
+
+    // render goal
 
     // render character
+    drawCustomImage(cxt, "./images/robot.png", spyPos.x, spyPos.y, spySize, spySize)
 
 }
 
@@ -314,7 +364,7 @@ function checkHand() {
         handPos.x = filteredPreds[0].bbox[0] + filteredPreds[0].bbox[2] / 2
         handPos.y = filteredPreds[0].bbox[1] + filteredPreds[0].bbox[3] / 2
 
-        console.log(handPos.x, handPos.y )
+        // console.log(handPos.x, handPos.y )
 
         // update that newHand detected is true
         newHand = true;
