@@ -9,6 +9,8 @@ const context = canvas.getContext("2d");
 let trackButton = document.getElementById("trackbutton");
 let updateNote = document.getElementById("updatenote");
 
+let levelText = document.getElementById("levelText");
+
 // some other variables in the script
 let isVideo = false;
 let model = null;
@@ -59,6 +61,18 @@ var goalSize = 50
 // with multiple lasers of just x y
 var laserPos = {}
 
+// laser animation direction toggles
+var laser0xToggle = true;
+var laser0yToggle = true;
+
+var laser1xToggle = true;
+var laser1yToggle = true;
+
+var laser2xToggle = true;
+var laser2yToggle = true;
+
+var laser3xToggle = true;
+var laser3yToggle = true;
 
 /*
 LEVELS
@@ -67,7 +81,7 @@ LEVELS
 3: Level with moving obstacles (left right up down movement)
 4: Level with moving obstacles advanced (follow? Rotate?)
 */
-var level = 1; 
+var level = 5; 
 
 // play, win, lose (display diff scene on canvas)
 var gameState = "play"
@@ -207,12 +221,17 @@ function moveEverything() {
                 // calculate euclidian dist
                 distFromHand = Math.sqrt( Math.pow((spyPos.x-handXScaled), 2) + Math.pow((spyPos.y-handYScaled), 2) );
                 // if within range of previous position (euclidian dist)
-                if (distFromHand < 40) {
+                if (distFromHand < 60) {
                     
                     // if goal advance level
                     if (checkGoal()) {
-                        level += 1;
-                        updateLevel()
+                        if(level !== 5) {
+                            level += 1;
+                            updateLevel()
+                        } else {
+                            spyPos.x = 0
+                            spyPos.y = 0
+                        }
                     }
 
                     // if hit laser for that level (laser are just lasers)
@@ -339,6 +358,20 @@ function hitObstacle() {
 // update the level, starting positions states and obstacle info
 function updateLevel() {
     // update level
+    levelText.innerText = "Level " + level
+
+    // laser animation direction toggles
+    laser0xToggle = true;
+    laser0yToggle = true;
+
+    laser1xToggle = true;
+    laser1yToggle = true;
+
+    laser2xToggle = true;
+    laser2yToggle = true;
+
+    laser3xToggle = true;
+    laser3yToggle = true;
 
     switch(level) {
         case 1:
@@ -357,46 +390,39 @@ function updateLevel() {
             */
             obstaclePos = {
                 0: {
-                    x: 100,
-                    y: 100,
-                    width: 40,
-                    height: 500
+                    x: 130,
+                    y: 0,
+                    width: 70,
+                    height: 300
                 },
                 1: {
-                    x: 500,
+                    x: 300,
                     y: 140,
                     width: 40,
                     height:460 
                 },
                 2: {
-                    x: 500,
-                    y: 100,
+                    x: 480,
+                    y: 350,
                     width: 200,
-                    height: 40
+                    height: 80
+                },
+                3: {
+                    x: 480,
+                    y: 0,
+                    width: 30,
+                    height: 350
                 }
             };
 
             // only one goal zone
             goalPos = {
-                x: 700,
-                y: 500
+                x: 640,
+                y: 150
             };
 
             // with multiple lasers of just x y
-            laserPos = {
-                0: {
-                    x1: 300,
-                    y1: 0,
-                    x2: 300,
-                    y2: 400
-                },
-                1: {
-                    x1: 650,
-                    y1: 300,
-                    x2: 800,
-                    y2: 300
-                }
-            }
+            laserPos = {}
 
             break;
         case 2:
@@ -457,14 +483,157 @@ function updateLevel() {
             }
 
             break;
-        case 3:
-            break;
+        case 3:// gamestate
+        // gameState = "play"
+
+        // post of character on canvas
+        spyPos = {
+            x: 10,
+            y: 520
+        }
+
+        /*
+        Obstacle and goal variables
+        x, y, width, height
+        */
+        obstaclePos = {
+            0: {
+                x: 250,
+                y: 0,
+                width: 30,
+                height: 450
+            },
+            1: {
+                x: 0,
+                y: 0,
+                width: 30,
+                height: 450
+            },
+            2: {
+                x: 450,
+                y: 90,
+                width: 40,
+                height:510 
+            },
+            3: {
+                x: 680,
+                y: 0,
+                width: 120,
+                height:210 
+            },
+            4: {
+                x: 680,
+                y: 300,
+                width: 120,
+                height:210 
+            }
+            
+        }
+
+        // only one goal zone
+        goalPos = {
+            x: 725,
+            y: 530
+        };
+
+        // with multiple lasers of just x y
+        laserPos = {
+            0: {
+                x1: 100,
+                y1: 150,
+                x2: 100,
+                y2: 600
+            },
+            1: {
+                x1: 280,
+                y1: 250,
+                x2: 450,
+                y2: 250
+            },
+            2: {
+                x1: 280,
+                y1: 400,
+                x2: 450,
+                y2: 400
+            },
+            3: {
+                x1: 600,
+                y1: 150,
+                x2: 600,
+                y2: 600
+            },
+        }
+
+        break; 
         case 4:
-            break;    
+            // gamestate
+            // gameState = "play"
+
+            // post of character on canvas
+            spyPos = {
+                x: 300,
+                y: 50
+            }
+
+            /*
+            Obstacle and goal variables
+            x, y, width, height
+            */
+            obstaclePos = {
+                0: {
+                    x: 400,
+                    y: 0,
+                    width: 40,
+                    height: 500
+                },
+                1: {
+                    x: 700,
+                    y: 140,
+                    width: 100,
+                    height:460 
+                }
+            }
+
+            // only one goal zone
+            goalPos = {
+                x: 700,
+                y: 50
+            };
+
+            // with multiple lasers of just x y
+            laserPos = {
+                0: {
+                    x1: 100,
+                    y1: 150,
+                    x2: 400,
+                    y2: 200
+                },
+                1: {
+                    x1: 0,
+                    y1: 300,
+                    x2: 300,
+                    y2: 350
+                },
+                2: {
+                    x1: 100,
+                    y1: 450,
+                    x2: 400,
+                    y2: 495
+                },
+                3: {
+                    x1: 440,
+                    y1: 400,
+                    x2: 600,
+                    y2: 250
+                },
+            }
+
+            break;  
         default:
             // win?        
     }
 }
+
 
 // function to update obstacles for the animation 
 function updateObstaclesAndLasers() {
@@ -473,8 +642,210 @@ function updateObstaclesAndLasers() {
     // check based on level
     switch(level) {
         case 3:
+            // laser
+            if (laser0xToggle) {
+                if (laserPos[0].x1 < 210) {
+                    laserPos[0].x1 += 4
+                } else {
+                    laser0xToggle = !laser0xToggle
+                }
+            } else {
+                if (laserPos[0].x1 > 90) {
+                    laserPos[0].x1 -= 4
+                } else {
+                    laser0xToggle = !laser0xToggle
+                }
+            }
+            
+            if (laser0yToggle) {
+                if (laserPos[0].x2 < 210) {
+                    laserPos[0].x2 += 4
+                } else {
+                    laser0yToggle = !laser0yToggle
+                }
+            } else {
+                if (laserPos[0].x2 > 90) {
+                    laserPos[0].x2 -= 4
+                } else {
+                    laser0yToggle = !laser0yToggle
+                }
+            }
+            
+            // laser 2
+            if (laser1yToggle) {
+                if (laserPos[1].x2 > 290) {
+                    laserPos[1].x2 -= 6
+                } else {
+                    laser1yToggle = !laser1yToggle
+                }
+            } else {
+                if (laserPos[1].x2 < 450) {
+                    laserPos[1].x2 += 6
+                } else {
+                    laser1yToggle = !laser1yToggle
+                }
+            }
+
+            // laser 3
+            if (laser2yToggle) {
+                if (laserPos[2].x1 < 450) {
+                    laserPos[2].x1 += 6
+                } else {
+                    laser2yToggle = !laser2yToggle
+                }
+            } else {
+                if (laserPos[2].x1 > 290) {
+                    laserPos[2].x1 -= 6
+                } else {
+                    laser2yToggle = !laser2yToggle
+                }
+            }
+
+            // laser 4
+            if (laser3xToggle) {
+                if (laserPos[3].x1 < 665) {
+                    laserPos[3].x1 += 4
+                } else {
+                    laser3xToggle = !laser3xToggle
+                }
+            } else {
+                if (laserPos[3].x1 > 500) {
+                    laserPos[3].x1 -= 4
+                } else {
+                    laser3xToggle = !laser3xToggle
+                }
+            }
+            
+            if (laser2xToggle) {
+                if (laserPos[3].x2 < 665) {
+                    laserPos[3].x2 += 4
+                } else {
+                    laser2xToggle = !laser2xToggle
+                }
+            } else {
+                if (laserPos[3].x2 > 500) {
+                    laserPos[3].x2 -= 4
+                } else {
+                    laser2xToggle = !laser2xToggle
+                }
+            }
             break;
         case 4:
+            // first laser
+            if (laser0yToggle) {
+                if (laserPos[0].y1 < 200) {
+                    laserPos[0].y1 += 3
+                } else {
+                    laser0yToggle = !laser0yToggle
+                }
+            } else {
+                if (laserPos[0].y1 > 100) {
+                    laserPos[0].y1 -= 3
+                } else {
+                    laser0yToggle = !laser0yToggle
+                }
+            }
+
+            if (laser0xToggle) {
+                if (laserPos[0].x1 < 200) {
+                    laserPos[0].x1 += 4
+                } else {
+                    laser0xToggle = !laser0xToggle
+                }
+            } else {
+                if (laserPos[0].x1 > 100) {
+                    laserPos[0].x1 -= 4
+                } else {
+                    laser0xToggle = !laser0xToggle
+                }
+            }
+
+            // second laser
+            if (laser1yToggle) {
+                if (laserPos[1].y2 < 410) {
+                    laserPos[1].y2 += 3
+                } else {
+                    laser1yToggle = !laser1yToggle
+                }
+            } else {
+                if (laserPos[1].y2 > 250) {
+                    laserPos[1].y2 -= 3
+                } else {
+                    laser1yToggle = !laser1yToggle
+                }
+            }
+
+            if (laser1xToggle) {
+                if (laserPos[1].x2 < 330) {
+                    laserPos[1].x2 += 4
+                } else {
+                    laser1xToggle = !laser1xToggle
+                }
+            } else {
+                if (laserPos[1].x2 > 250) {
+                    laserPos[1].x2 -= 4
+                } else {
+                    laser1xToggle = !laser1xToggle
+                }
+            }
+
+            // third laser
+            if (laser2yToggle) {
+                if (laserPos[2].y1 < 410) {
+                    laserPos[2].y1 += 3
+                } else {
+                    laser2yToggle = !laser2yToggle
+                }
+            } else {
+                if (laserPos[2].y1 > 520) {
+                    laserPos[2].y1 -= 3
+                } else {
+                    laser2yToggle = !laser2yToggle
+                }
+            }
+            
+            if (laser2xToggle) {
+                if (laserPos[2].x1 < 150) {
+                    laserPos[2].x1 += 4
+                } else {
+                    laser2xToggle = !laser2xToggle
+                }
+            } else {
+                if (laserPos[2].x1 > 50) {
+                    laserPos[2].x1 -= 4
+                } else {
+                    laser2xToggle = !laser2xToggle
+                }
+            }
+
+            //fourth laser
+            if (laser3yToggle) {
+                if (laserPos[3].y2 < 350) {
+                    laserPos[3].y2 += 5
+                } else {
+                    laser3yToggle = !laser3yToggle
+                }
+            } else {
+                if (laserPos[3].y2 > 200) {
+                    laserPos[3].y2 -= 5
+                } else {
+                    laser3yToggle = !laser3yToggle
+                }
+            }
+
+            if (laser3xToggle) {
+                if (laserPos[3].x2 < 670) {
+                    laserPos[3].x2 += 4
+                } else {
+                    laser3xToggle = !laser3xToggle
+                }
+            } else {
+                if (laserPos[3].x2 > 550) {
+                    laserPos[3].x2 -= 4
+                } else {
+                    laser3xToggle = !laser3xToggle
+                }
+            }
             break;
         default:
             // nothing for stationary levels 1 & 2
@@ -483,25 +854,30 @@ function updateObstaclesAndLasers() {
 
 // to render everything on the canvas for the new frame
 function drawEverything() {
-    // draw bg
-    drawCustomImage(cxt, "./images/background.png", 0, 0, 800, 600)
+    if (level !== 5) {
+        // draw bg
+        drawCustomImage(cxt, "./images/background.png", 0, 0, 800, 600)
 
-    // iterate through lasers
-    for( var laser in laserPos){
-        drawLaser(laserPos[laser].x1, laserPos[laser].y1, laserPos[laser].x2, laserPos[laser].y2)
+        // iterate through lasers
+        for( var laser in laserPos){
+            drawLaser(laserPos[laser].x1, laserPos[laser].y1, laserPos[laser].x2, laserPos[laser].y2)
+        }
+
+        // iterate through obstacles
+        for (var obstacle in obstaclePos) {
+            drawObstacle(obstaclePos[obstacle].x, obstaclePos[obstacle].y, obstaclePos[obstacle].width, obstaclePos[obstacle].height)
+        }
+
+        // render goal
+        drawCustomImage(cxt, "./images/microchip.png", goalPos.x, goalPos.y, goalSize, goalSize)
+
+
+        // render character
+        drawCustomImage(cxt, "./images/robot.png", spyPos.x, spyPos.y, spySize, spySize)
+    } else {
+        drawCustomImage(cxt, "./images/winScreen.png", 0, 0, 800, 600)
+
     }
-
-    // iterate through obstacles
-    for (var obstacle in obstaclePos) {
-        drawObstacle(obstaclePos[obstacle].x, obstaclePos[obstacle].y, obstaclePos[obstacle].width, obstaclePos[obstacle].height)
-    }
-
-    // render goal
-    drawCustomImage(cxt, "./images/microchip.png", goalPos.x, goalPos.y, goalSize, goalSize)
-
-
-    // render character
-    drawCustomImage(cxt, "./images/robot.png", spyPos.x, spyPos.y, spySize, spySize)
 
 }
 
